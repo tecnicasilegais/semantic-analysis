@@ -4,6 +4,13 @@
 # Log file
 *.log
 
+#jflex and byaccj
+*.exe
+*.old
+*.output
+Parser.java
+Yylex.java
+
 # BlueJ files
 *.ctxt
 
