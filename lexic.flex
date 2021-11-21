@@ -35,13 +35,14 @@ NL  = \n|\r|\r\n
 
 "$TRACE_ON"  { yyparser.setDebug(true);  }
 "$TRACE_OFF" { yyparser.setDebug(false); }
-"$MOSTRA_TS" { yyparser.listarTS(); }
+"$MOSTRA_TS" { yyparser.showTable(); }
 
 
 /* operators */
 "+" | 
 "=" |
 ">" |
+"<" |
 ";" |
 "(" |
 ")" |
@@ -65,8 +66,10 @@ bool   { return Parser.BOOL; }
 string { return Parser.STRING; }
 void { return Parser.VOID; }
 if { return Parser.IF; }
+else { return Parser.ELSE; }
 struct { return Parser.STRUCT; }
 funct { return Parser.FUNCT; }
+return {return Parser.RETURN;}
 
 [a-zA-Z][a-zA-Z_0-9]* { yyparser.yylval = new ParserVal(yytext());
                      return Parser.IDENT; }

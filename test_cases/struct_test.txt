@@ -13,6 +13,17 @@ double y;
 bool b;
 bool ok;
 
+struct DATA {
+    int dia, mes, ano;
+};
+
+struct ALUNO {
+    int matricula;
+    string nome;
+    DATA escalaMatr;
+    int dia;
+};
+
 funct void main() {
 
    j = k;
@@ -23,10 +34,7 @@ funct void main() {
  
    ok = b && (x > i) && (i > 3);
 
-   if (ok){
+   if (ok) {
       i = 7;
-   }
-   else{
-      i = 5;
    }
 }

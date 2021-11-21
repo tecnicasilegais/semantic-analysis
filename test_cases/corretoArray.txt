@@ -1,15 +1,20 @@
+string def1 = "Trabalho final da disciplina Construção de Compiladores 2021/2";
+string def2 = "Eduardo Andrade - eduardo.a@edu.pucrs.br - 17111012-5";
+string def3 = "Julia Alberti - julia.maia@edu.pucrs.br - 18106160-7";
+string def4 = "Marcelo Heredia - marcelo.heredia@edu.pucrs.br - 16204047-1";
+
 int i;
 
 double x;
 
 bool b;
 
-int[10] vint;
-double [20] vfloat;
-bool[30] vbool;
+int vint[10];
+double  vfloat[20];
+bool vbool[30];
 
 
-void main() {
+funct void main() {
 
    i = 5;
    

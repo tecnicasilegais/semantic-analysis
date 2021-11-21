@@ -1,0 +1,22 @@
+declaração de variáveis em qualquer parte do código
+declaração de variável com inicialização na mesma linha 
+
+inicialização de string com valor (ex: string x = "aalguma string"; )
+inicialização de double com valor (ex: double x = 2.3; )
+
+mudança no formato da definição de vetor (era:  bool[10][20] v;  agora: bool v[10][20];) Motivo: conflito de reduce/reduce com exp
+    |->  Ao habilitar variáveis com tipos customizados (structs) passou a ser possivel definir um vetor da seguinte forma:
+        |-> algumaStruct[NUM] listaStruct; Com isso, passa a existir um conflito com o uso de vetores em exp onde:
+            |-> exp '[' exp ']' pois para array, essa forma deve terminar em IDENT '[' NUM ']', sendo assim o conflito ocorre em IDENT . '['
+            |-> Esse conflito ocorre devido ao fato de que, para funções, foi habilitado criar variáveis e executar comandos em qualquer lugar dentro do escopo: 
+                |-> conteudoFuncao: conteudoFuncao localDeclaration
+                                  | conteudoFuncao cmd
+                                  |
+                                  ;
+
+
+refatoração do código no geral e mudança nos nomes de classes, variaveis, e etc de forma que ficasse mais claro para nosso grupo.
+
+variaveis locais ou parametros de função "escondem" variaveis globais, caso invocadas dentro do escopo interno.
+
+If e ELse necessitam bloco, não é possível usar nenhum dos dois sem que haja um bloco

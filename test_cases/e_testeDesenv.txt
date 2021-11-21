@@ -13,12 +13,21 @@ double y;
 bool b;
 bool ok;
 
+int v2bool[10][20][30][30];
+
+bool seila;
+
 struct seila {
    bool seilazinho;
 };
 
+seila something;
 
-funct asdf main() {
+int aaaaaaa;
+
+funct void main() {
+
+
    bool xssss;
    bool ean;
 
@@ -35,18 +44,8 @@ funct asdf main() {
    }
 }
 
+funct void main2(bool x, int zzz) {
+   int asdasda = 2;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+   double testinho = asdasda + 3.5;
+}

@@ -13,7 +13,24 @@ double y;
 bool b;
 bool ok;
 
+int v2bool[10][20][30][30];
+
+bool seila;
+
+struct seila {
+   bool seilazinho;
+};
+
+seila something;
+
+int aaaaaaa;
+
 funct void main() {
+
+   int b;
+
+   bool xssss;
+   bool ean;
 
    j = k;
    i = 5;  
@@ -26,7 +43,10 @@ funct void main() {
    if (ok){
       i = 7;
    }
-   else{
-      i = 5;
-   }
+}
+
+funct void main2(bool x, int zzz) {
+   int asdasda = 2;
+
+   double testinho = asdasda + 3.5;
 }
