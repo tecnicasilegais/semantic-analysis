@@ -27,24 +27,4 @@ public enum IdentType {
     return id == IdentType.Local || id == IdentType.FunctionParam || id == IdentType.StructField;
   }
 
-  public static boolean relates(IdentType table, IdentType searching) {
-    switch (table){
-      case Global:
-        return searching == table || searching == Local || searching == FunctionParam;
-      case Local:
-        return searching == table;
-      case FunctionParam:
-        return searching == table || searching == Local;
-
-      case StructField:
-        return searching == StructField;
-      case FunctionDef:
-        return searching == FunctionDef;
-      case StructDef:
-        return searching == StructDef;
-      default:
-        return false;
-    }
-  }
-
 }

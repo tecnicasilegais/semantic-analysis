@@ -71,15 +71,13 @@ public class Tab
       return null;
     }
 
-    public Symbol find(String id, IdentType currIdentType){
-      for (Symbol node : symbols) {
-          if (node.getIdent().equals(id)) {
-            if(IdentType.relates(node.getIdentType(), currIdentType)){
-              return node;
-            }
-          }
+    public Symbol get(int i) {
+      try {
+        return symbols.get(i);
       }
-      return null;
+      catch(Exception ex){
+        return Tp_ERROR;
+      }
     }
 
     public String getScopeName() {

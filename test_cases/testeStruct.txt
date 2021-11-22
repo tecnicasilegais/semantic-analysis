@@ -24,17 +24,14 @@ struct ALUNO {
     int dia;
 };
 
-funct void main() {
+funct ALUNO cadastraAluno(string nome) {
+    ALUNO retornar;
+    retornar.matricula = 123456;
+    retornar.nome = "Agustini";
+    retornar.escalaMatr.dia = 10;
+    retornar.escalaMatr.mes = 10;
+    retornar.escalaMatr.ano = 1970;
+    int testando = 100000;
 
-   j = k;
-   i = 5;  
-
-   x = i + 4;
-   y = y + i + 2;  
- 
-   ok = b && (x > i) && (i > 3);
-
-   if (ok) {
-      i = 7;
-   }
+    return retornar;
 }

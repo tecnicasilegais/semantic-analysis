@@ -3,12 +3,42 @@ string def2 = "Eduardo Andrade - eduardo.a@edu.pucrs.br - 17111012-5";
 string def3 = "Julia Alberti - julia.maia@edu.pucrs.br - 18106160-7";
 string def4 = "Marcelo Heredia - marcelo.heredia@edu.pucrs.br - 16204047-1";
 
-struct data {
-    int dia, mes, ano;
-};
+int i;
+int j;
+int k;
 
-int data = 3;
+double x;
+double y;
+
+bool b;
+bool ok;
 
 funct void main() {
-   int z = data;
+   j = k;
+   i = 5;  
+
+   x = i + 4;
+   y = y + i + 2;  
+ 
+   ok = b && (x > i) && i > 3;
+
+   if ( ok + 1 ) {
+      i = 7;
+   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

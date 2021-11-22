@@ -1,4 +1,4 @@
-declaração de variáveis em qualquer parte do código
+declaração de variáveis em qualquer parte do código (Exceto blocos de if / else)
 declaração de variável com inicialização na mesma linha 
 
 inicialização de string com valor (ex: string x = "aalguma string"; )
@@ -20,3 +20,21 @@ refatoração do código no geral e mudança nos nomes de classes, variaveis, e 
 variaveis locais ou parametros de função "escondem" variaveis globais, caso invocadas dentro do escopo interno.
 
 If e ELse necessitam bloco, não é possível usar nenhum dos dois sem que haja um bloco
+
+structs podem ser criadas apenas globalmente 
+funções podem retornar tipos base, void e structs criadas 
+
+mudança na ordem em EXP, terminais foram para o final pois estava dando problema com acesso ao array. 
+    |-> exemplo: int arr[10];
+                 int x = arr[0]; 
+                 |-> algum bug estranho que lia o ident 'arr' ao invés de exp '[' NUM ']', 
+                            lia como array logo após, 
+                                mas retornava o tipo total (array(10, int)) ao invés de int.
+
+chamadas de funcoes usando valores de struct ok
+
+comandos if e else NÃO CRIAM CONTEXTO
+ |-> ao abrir bloco de if e else não é possivel criar variáveis, apenas fazer outros comandos, (if, exp = exp; , return -)
+
+
+ adicionados operadores: 

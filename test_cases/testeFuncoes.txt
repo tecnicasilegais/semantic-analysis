@@ -1,0 +1,59 @@
+string def1 = "Trabalho final da disciplina Construção de Compiladores 2021/2";
+string def2 = "Eduardo Andrade - eduardo.a@edu.pucrs.br - 17111012-5";
+string def3 = "Julia Alberti - julia.maia@edu.pucrs.br - 18106160-7";
+string def4 = "Marcelo Heredia - marcelo.heredia@edu.pucrs.br - 16204047-1";
+
+struct DATA {
+    int dia, mes, ano;
+    int unixNano;
+};
+
+struct ALUNO {
+    int matricula;
+    string nome;
+    DATA escalaMatr;
+    int dia;
+};
+
+funct int main() {
+   return 3;
+}
+
+funct string palavra(string outraCoisa) {
+    return "alguma coisa";
+}
+
+funct bool maiorQue5(double x) {
+    if(x > 5) {
+        return true;
+    }
+    return false;
+}
+
+funct double int2Double(int convert) {
+    return convert;
+}
+
+funct ALUNO retornaAluno() {
+    ALUNO retornar;
+
+
+    return retornar;
+}
+
+funct double retOp(ALUNO al) {
+
+    int x = -10;
+    double z = -3.9;
+
+    double y = int2Double(3);
+    double zb = int2Double(al.escalaMatr.unixNano);
+
+    int2Double(500);
+
+    return x + z + y;
+}
+
+funct bool boolOp(int x, int a) {
+    return x > a;
+}

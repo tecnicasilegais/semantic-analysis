@@ -15,25 +15,57 @@ bool ok;
 
 int v2bool[10][20][30][30];
 
-bool seila;
-
 struct seila {
    bool seilazinho;
 };
-
-seila something;
 
 int aaaaaaa;
 
 funct void main() {
 
-   int b;
+
+   bool xssss;
+   bool ean;
+
+   j = k;
+   i = 5;  
+
+   x = i + 4;
+   y = y + i + 2;  
+ 
+   ok = b && (x > i) && (i > 3);
+
+   if (ok){
+      i = 7;
+      return;
+   }
 }
 
-funct void main2(bool x, int zzz) {
+funct seila main2(bool x, int zzz) {
    int asdasda = 2;
 
    double testinho = asdasda + 3.5;
+   string testao;
+   bool ko;
+   seila sad;
 
-   return;
+   if(!ko || asdasda == 2 || asdasda != 2) {
+      return sad;
+   }
+
+   ko = 5.5 <= j;
+
+   ok = j >= 10;
+
+   double subs = 3.5 - 1;
+
+   y = subs++;
+
+   subs--;
+
+   j = k * 2;
+
+   seila teste;
+
+   return teste;
 }

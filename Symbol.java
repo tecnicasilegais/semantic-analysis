@@ -7,6 +7,8 @@ public class Symbol {
 
    // for Arrays
    private Symbol baseType;
+
+   //array and functions
    private int nElements;
 
    // for struct and function
@@ -63,8 +65,16 @@ public class Symbol {
       return this.nElements;
    }
 
+   public void incrParameters() {
+      this.nElements++;
+   }
+
+   public int getParameterCount() {
+      return this.nElements;
+   }
+
    public void showLocalScope() {
-      System.out.println("\n\n Local Scope for: " + this.ident + ", Scope type: " + this.type.ident);
+      System.out.println("\n\nLocal Scope for: " + this.ident + ", Scope type: " + this.type.ident);
       this.locals.showLocalScope();
    }
 
@@ -74,9 +84,9 @@ public class Symbol {
       aux.append("Id: ");
       aux.append(String.format("%-15s", this.ident));
 
-      aux.append(String.format("%-25s", "IdentType: " + this.identType));
+      aux.append(String.format("%-30s", "IdentType: " + this.identType));
 
-      aux.append(String.format("%-15s", "Type: " + type2String(this.type)));
+      aux.append(String.format("%-20s", "Type: " + type2String(this.type)));
 
       return aux.toString();
    }
@@ -102,7 +112,7 @@ public class Symbol {
          return "void";
       else if (type.type == Tab.Tp_STRUCT)
          return type.ident;
-      else if (type.getType() != null)
+      else if (type.getType() != null && type.getType() == Tab.Tp_ARRAY)
          return String.format("array(%d,%s)", type.nElements, type2String(type.baseType));
       else if (type == Tab.Tp_ERROR)
          return "_erro_";

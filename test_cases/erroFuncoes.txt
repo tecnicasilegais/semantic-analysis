@@ -13,39 +13,33 @@ double y;
 bool b;
 bool ok;
 
-int v2bool[10][20][30][30];
-
-bool seila;
-
-struct seila {
-   bool seilazinho;
+struct ALUNO {
+    int matricula;
+    string nome;
+    int dia;
 };
 
-seila something;
-
-int aaaaaaa;
-
-funct void main() {
-
-
-   bool xssss;
-   bool ean;
-
-   j = k;
-   i = 5;  
-
-   x = i + 4;
-   y = y + i + 2;  
- 
-   ok = b && (x > i) && (i > 3);
-
-   if (ok){
-      i = 7;
-   }
+funct int main() {
+   return 3.5;
 }
 
-funct void main2(bool x, int zzz) {
-   int asdasda = 2;
+funct double int2Double(int convert) {
+    return convert;
+}
 
-   double testinho = asdasda + 3.5;
+funct ALUNO retornaAluno() {
+    ALUNO retornar;
+
+    return 2;
+}
+
+funct void execOutra() {
+    double a = int2Double();
+    double ax = int2Double(3, 5);
+}
+
+funct void main2() {
+   return;
+
+   int x;
 }

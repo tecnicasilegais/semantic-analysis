@@ -15,6 +15,12 @@ double i;
 bool b;
 bool ok;
 
+struct SeiLa {
+   int b, ok;
+};
+
+string SeiLa = "erro aqui";
+
 funct void main() {
    j = k;
    i = 5;  
