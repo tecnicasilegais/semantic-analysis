@@ -6,6 +6,7 @@
 # atenção, copie para a pasta de tabalho
 # os arquivos JFlex.jar e yacc.linux
 #
+# trocar entre linux e windows pelo comentado do BYACCJ
 
 JFLEX  = java -jar JFlex.jar 
 #BYACCJ = ./yacc.linux -tv -J
