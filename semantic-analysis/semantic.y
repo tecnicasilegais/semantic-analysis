@@ -566,7 +566,7 @@ fCallParameters: exp { checkFunctionCallParameter((Symbol)$1); } ',' fCallParame
 
     parameter = parameter.getType();
 
-    if(usedParam != parameter) {
+    if(!checkAssignTypes(parameter, usedParam)) {
       yyerror("Semantic: Invalid parameter type, Expected: " + parameter.getIdent() + ", Received: " + usedParam.getIdent());
       return;
     }

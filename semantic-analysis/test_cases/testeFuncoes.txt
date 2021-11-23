@@ -51,6 +51,8 @@ funct double retOp(ALUNO al) {
 
     int2Double(500);
 
+    maiorQue5(x);
+
     return x + z + y;
 }
 
