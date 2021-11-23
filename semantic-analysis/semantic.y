@@ -36,6 +36,7 @@
 %type <dval> D_NUM
 %type <obj> type
 %type <obj> exp
+%type <obj> incrType
 
 %%
 
@@ -145,8 +146,8 @@ commandList: commandList command
            |
            ;
 
-command: exp INCR ';'                 { checkType(INCR, (Symbol)$1, null); }
-       | exp DECR ';'                 { checkType(DECR, (Symbol)$1, null); }
+command: incrType INCR ';'                 { checkType(INCR, (Symbol)$1, null); }
+       | incrType DECR ';'                 { checkType(DECR, (Symbol)$1, null); }
        | exp '=' exp ';'              { checkType('=', (Symbol)$1, (Symbol)$3); }
        | IF '(' exp ')' ifBlock else  {  if ( ((Symbol)$3) != Tab.Tp_BOOL) 
                                             yyerror("Semantic: 'if' Expression must be of logical type, received type: " + ((Symbol)$3).getTypeString());
@@ -167,10 +168,9 @@ conditionalReturn: RETURN exp ';' { checkReturnType((Symbol)$2);  }
 ifBlock: '{' commandList conditionalReturn '}';
 
 exp: '(' exp ')'     { $$ = $2; }
-   | exp '[' exp ']' { $$ = checkArrayAccess((Symbol)$1, (Symbol)$3); } 
-   | exp INCR        { $$ = checkType(INCR, (Symbol)$1, null); }
-   | exp DECR        { $$ = checkType(DECR, (Symbol)$1, null); }
    | '!' exp         { $$ = checkType('!', (Symbol)$2, null); }
+   | incrType INCR   { $$ = checkType(INCR, (Symbol)$1, null); }
+   | incrType DECR   { $$ = checkType(DECR, (Symbol)$1, null); }
    | exp '*' exp     { $$ = checkType('*', (Symbol)$1, (Symbol)$3); }
    | exp '+' exp     { $$ = checkType('+', (Symbol)$1, (Symbol)$3); }
    | exp '-' exp     { $$ = checkType('-', (Symbol)$1, (Symbol)$3); }
@@ -189,8 +189,13 @@ exp: '(' exp ')'     { $$ = $2; }
    | NUM             { $$ = Tab.Tp_INT; }    
    | D_NUM           { $$ = Tab.Tp_DOUBLE; } 
    | LITERAL         { $$ = Tab.Tp_STRING; }
-   | IDENT           { $$ = searchIdent($1); }     
+   | incrType        { $$ = $1; }
    ;
+
+
+incrType: IDENT           { $$ = searchIdent($1); }
+        | IDENT '[' exp ']' { $$ = checkArrayAccess(searchIdent($1), (Symbol)$3); }      
+        ;
 
 accessField: accessField '.' IDENT { currentSType = checkStructAccess(currentSType, $3); }
            | IDENT '.' IDENT       { currentSType = checkStructAccess(searchIdent($1), $3); }
