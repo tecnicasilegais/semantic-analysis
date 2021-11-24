@@ -9,8 +9,8 @@
 # trocar entre linux e windows pelo comentado do BYACCJ
 
 JFLEX  = java -jar JFlex.jar 
-#BYACCJ = ./yacc.linux -tv -J
-BYACCJ = ./yacc.exe -tv -J
+BYACCJ = byaccj -tv -J
+#BYACCJ = ./yacc.exe -tv -J
 JAVAC  = javac
 
 # targets:

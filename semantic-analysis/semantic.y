@@ -110,7 +110,7 @@ functionList: functionList function
             |
             ;
 
-//todo fazer tipoRetorno listaParametros 
+
 function: FUNCT { currIdType = IdentType.FunctionDef; } returnType id 
                     '(' { currIdType = IdentType.FunctionParam; } args ')' functionBlock
         ;
@@ -148,10 +148,10 @@ commandList: commandList command
 
 command: incrType INCR ';'                 { checkType(INCR, (Symbol)$1, null); }
        | incrType DECR ';'                 { checkType(DECR, (Symbol)$1, null); }
-       | exp '=' exp ';'              { checkType('=', (Symbol)$1, (Symbol)$3); }
-       | IF '(' exp ')' ifBlock else  {  if ( ((Symbol)$3) != Tab.Tp_BOOL) 
-                                            yyerror("Semantic: 'if' Expression must be of logical type, received type: " + ((Symbol)$3).getTypeString());
-                                      }     
+       | exp '=' exp ';'                   { checkType('=', (Symbol)$1, (Symbol)$3); }
+       | IF '(' exp ')' ifBlock else       {  if ( ((Symbol)$3) != Tab.Tp_BOOL) 
+                                                 yyerror("Semantic: 'if' Expression must be of logical type, received type: " + ((Symbol)$3).getTypeString());
+                                           }     
        | functionCall ';'      
        ;
 
