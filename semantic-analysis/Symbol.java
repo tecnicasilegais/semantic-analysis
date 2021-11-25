@@ -61,7 +61,10 @@ public class Symbol {
    }
 
    public Tab getLocalScope() {
-      return this.locals;
+      if(this.locals != null){
+         return this.locals;
+      }
+      return null;
    }
 
    public boolean hasLocalScope() {

@@ -10,6 +10,7 @@
    */
   import java.io.*;
   import java.util.function.Consumer;
+  import java.util.Stack;
 %}
 
 
@@ -37,6 +38,7 @@
 %type <obj> type
 %type <obj> exp
 %type <obj> incrType
+%type <obj> functionCall
 
 %%
 
@@ -112,7 +114,7 @@ functionList: functionList function
 
 
 function: FUNCT { currIdType = IdentType.FunctionDef; } returnType id 
-                    '(' { currIdType = IdentType.FunctionParam; } args ')' functionBlock
+                    '(' { currIdType = IdentType.FunctionParam; } args { currentFType.pop(); } ')' functionBlock
         ;
 
 functionBlock: '{' { currIdType = IdentType.Local; }  functionContent return '}' ;
@@ -135,8 +137,8 @@ args: functionParameterList
     |
     ;
 
-functionParameterList: functionParameter { currentFType.incrParameters(); } ',' functionParameterList
-                     | functionParameter { currentFType.incrParameters(); }
+functionParameterList: functionParameter { currentFType.peek().incrParameters(); } ',' functionParameterList
+                     | functionParameter { currentFType.peek().incrParameters(); }
                      ;
 
 functionParameter: type { currentType = (Symbol)$1; } id
@@ -183,7 +185,7 @@ exp: '(' exp ')'     { $$ = $2; }
    | exp AND exp     { $$ = checkType(AND, (Symbol)$1, (Symbol)$3); } 
    | exp OR exp      { $$ = checkType(OR, (Symbol)$1, (Symbol)$3); } 
    | accessField     { $$ = currentSType; }
-   | functionCall    { $$ = currentFType; }
+   | functionCall    { $$ = (Symbol)$1; }
    | FALSE           { $$ = Tab.Tp_BOOL; }
    | TRUE            { $$ = Tab.Tp_BOOL; }
    | NUM             { $$ = Tab.Tp_INT; }    
@@ -201,7 +203,7 @@ accessField: accessField '.' IDENT { currentSType = checkStructAccess(currentSTy
            | IDENT '.' IDENT       { currentSType = checkStructAccess(searchIdent($1), $3); }
            ;
 
-functionCall: IDENT { currentFType = checkIsFunction($1); } '(' fCallArgs ')' { currentFType = checkParamCount(); }
+functionCall: IDENT { currentFType.push(checkIsFunction($1)); } '(' fCallArgs ')' { $$ = checkParamCount(); currentFType.pop();}
             ;
 
 fCallArgs: fCallParameters
@@ -226,7 +228,7 @@ fCallParameters: exp { checkFunctionCallParameter((Symbol)$1); } ',' fCallParame
   private Symbol currentType;
 
   private Symbol currentSType;
-  private Symbol currentFType;
+  private Stack<Symbol> currentFType;
   private int currParameter = 0;
 
   private int yylex () {
@@ -256,6 +258,8 @@ fCallParameters: exp { checkFunctionCallParameter((Symbol)$1); } ',' fCallParame
 
     ts = new Tab(); 
     currScope = ts;
+
+    currentFType = new Stack<>();
   }  
 
   public void setDebug(boolean debug) {
@@ -361,7 +365,7 @@ fCallParameters: exp { checkFunctionCallParameter((Symbol)$1); } ',' fCallParame
     Symbol functionOrStruct = Symbol.createStructOrFunction(ident, currentType, currIdType);
 
     currScope = functionOrStruct.getLocalScope();
-    currentFType = functionOrStruct;
+    currentFType.push(functionOrStruct);
 
     ts.insert(functionOrStruct);
   }
@@ -444,14 +448,14 @@ fCallParameters: exp { checkFunctionCallParameter((Symbol)$1); } ',' fCallParame
         break;
 
       case EQ :
-        if ((s1 == Tab.Tp_INT || s1 == Tab.Tp_DOUBLE) && (s2 == Tab.Tp_INT || s2 == Tab.Tp_DOUBLE))
+        if (checkAssignTypes(s1, s2) || (s1 == Tab.Tp_DOUBLE && s2 == Tab.Tp_INT))
           return Tab.Tp_BOOL;
         else
           defaultError.apply("relational operation", " == ");
         break;
 
       case NEQ :
-        if ((s1 == Tab.Tp_INT || s1 == Tab.Tp_DOUBLE) && (s2 == Tab.Tp_INT || s2 == Tab.Tp_DOUBLE))
+        if (checkAssignTypes(s1, s2))
           return Tab.Tp_BOOL;
         else
           defaultError.apply("relational operation", " != ");
@@ -556,7 +560,12 @@ fCallParameters: exp { checkFunctionCallParameter((Symbol)$1); } ',' fCallParame
   }
 
   void checkFunctionCallParameter(Symbol usedParam) {
-    Symbol parameter = currentFType.getLocalScope().get(currParameter);
+    Tab lScope = currentFType.peek().getLocalScope();
+    Symbol parameter = Tab.Tp_ERROR;
+
+     if (lScope != null){
+       parameter = lScope.get(currParameter);
+     }
 
     currParameter++;       
 
@@ -578,11 +587,12 @@ fCallParameters: exp { checkFunctionCallParameter((Symbol)$1); } ',' fCallParame
   }
 
   Symbol checkParamCount() {
-    if (currentFType.getParameterCount() == currParameter) {
+    Symbol f = currentFType.peek();
+    if (f.getParameterCount() == currParameter) {
       currParameter = 0;
-      return currentFType.getType();
+      return f.getType();
     }
-    yyerror("Semantic: Incompatible number of parameters for function > " + currentFType.getIdent() + " < Expected: " + currentFType.getParameterCount() + ", Received " + currParameter);
+    yyerror("Semantic: Incompatible number of parameters for function > " + f.getIdent() + " < Expected: " + f.getParameterCount() + ", Received " + currParameter);
     currParameter = 0;
     return Tab.Tp_ERROR;
   }

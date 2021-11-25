@@ -23,6 +23,13 @@ funct string palavra(string outraCoisa) {
     return "alguma coisa";
 }
 
+funct int validaNome(string nome) {
+    if (nome == "alguem") {
+        return 20;
+    }
+    return 0;
+}
+
 funct bool maiorQue5(double x) {
     if(x > 5) {
         return true;
@@ -43,15 +50,19 @@ funct ALUNO retornaAluno() {
 
 funct double retOp(ALUNO al) {
 
-    int x = -10;
-    double z = -3.9;
+    int x = 10;
+    double z = 3.9;
 
     double y = int2Double(3);
     double zb = int2Double(al.escalaMatr.unixNano);
 
     int2Double(500);
 
-    double zzz = int2Double(main());
+    double zzz = int2Double(main()*3);
+    
+    if(maiorQue5(int2Double(validaNome("Recursao")-5))) {
+        return 12;
+    }
 
     maiorQue5(x);
 
