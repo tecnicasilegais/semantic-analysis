@@ -150,7 +150,7 @@ commandList: commandList command
 
 command: incrType INCR ';'                 { checkType(INCR, (Symbol)$1, null); }
        | incrType DECR ';'                 { checkType(DECR, (Symbol)$1, null); }
-       | exp '=' exp ';'                   { checkType('=', (Symbol)$1, (Symbol)$3); }
+       | incrType '=' exp ';'              { checkType('=', (Symbol)$1, (Symbol)$3); }
        | IF '(' exp ')' ifBlock else       {  if ( ((Symbol)$3) != Tab.Tp_BOOL) 
                                                  yyerror("Semantic: 'if' Expression must be of logical type, received type: " + ((Symbol)$3).getTypeString());
                                            }     
@@ -184,7 +184,6 @@ exp: '(' exp ')'     { $$ = $2; }
    | exp NEQ exp     { $$ = checkType(NEQ, (Symbol)$1, (Symbol)$3); }
    | exp AND exp     { $$ = checkType(AND, (Symbol)$1, (Symbol)$3); } 
    | exp OR exp      { $$ = checkType(OR, (Symbol)$1, (Symbol)$3); } 
-   | accessField     { $$ = currentSType; }
    | functionCall    { $$ = (Symbol)$1; }
    | FALSE           { $$ = Tab.Tp_BOOL; }
    | TRUE            { $$ = Tab.Tp_BOOL; }
@@ -195,8 +194,9 @@ exp: '(' exp ')'     { $$ = $2; }
    ;
 
 
-incrType: IDENT           { $$ = searchIdent($1); }
-        | IDENT '[' exp ']' { $$ = checkArrayAccess(searchIdent($1), (Symbol)$3); }      
+incrType: IDENT             { $$ = searchIdent($1); }
+        | exp '[' exp ']' { $$ = checkArrayAccess((Symbol)$1, (Symbol)$3); }  
+        | accessField       { $$ = currentSType;}    
         ;
 
 accessField: accessField '.' IDENT { currentSType = checkStructAccess(currentSType, $3); }

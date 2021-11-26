@@ -42,8 +42,7 @@ funct void main() {
 
    vbool[ vint[4] + 2 ] = vfloat[ vint[i] + i ] > 5;
 
-   cubo[1][2][3] = 
-       cubo[vint[4]][cubo[3][2][vint[cubo[2][23][7]]]][2];
+   cubo[1][2][3] = cubo[vint[4]][cubo[3][2][vint[cubo[2][23][7]]]][2];
 
    mat[0][0] = cubo[vint[4]][cubo[3][2][vint[cubo[2][23][7]]]][2];  
 

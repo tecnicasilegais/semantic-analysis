@@ -484,8 +484,8 @@ public void gcExpRel(int oprel) {
     System.out.println("\tMOVL $0, %EAX");
     
     switch (oprel) {
-       case '<':  			System.out.println("\tSETL  %AL"); break;
-       case '>':  			System.out.println("\tSETG  %AL"); break;
+       case '<':  		System.out.println("\tSETL  %AL"); break;
+       case '>':  		System.out.println("\tSETG  %AL"); break;
        case Parser.EQ:  System.out.println("\tSETE  %AL"); break;
        case Parser.GEQ: System.out.println("\tSETGE %AL"); break;
        case Parser.LEQ: System.out.println("\tSETLE %AL"); break;
