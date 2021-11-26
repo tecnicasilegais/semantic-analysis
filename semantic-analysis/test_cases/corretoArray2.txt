@@ -47,11 +47,6 @@ funct void main() {
 
    mat[0][0] = cubo[vint[4]][cubo[3][2][vint[cubo[2][23][7]]]][2];  
 
-
-
-
-   v2bool[0][0][0] = vbool;
-
 }
 
 

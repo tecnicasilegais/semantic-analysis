@@ -36,6 +36,7 @@ funct ALUNO retornaAluno() {
 funct void execOutra() {
     double a = int2Double();
     double ax = int2Double(3, 5);
+    double az = int2Double(int2Double(5));
 }
 
 funct void main2() {
