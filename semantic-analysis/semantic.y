@@ -195,7 +195,7 @@ exp: '(' exp ')'     { $$ = $2; }
 
 
 incrType: IDENT             { $$ = searchIdent($1); }
-        | exp '[' exp ']' { $$ = checkArrayAccess((Symbol)$1, (Symbol)$3); }  
+        | exp '[' exp ']'   { $$ = checkArrayAccess((Symbol)$1, (Symbol)$3); }  
         | accessField       { $$ = currentSType;}    
         ;
 
