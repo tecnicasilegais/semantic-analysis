@@ -7,17 +7,20 @@
  
 
 %token ID, INT, FLOAT, BOOL, NUM, LIT, VOID, MAIN, READ, WRITE, IF, ELSE
-%token WHILE,TRUE, FALSE, IF, ELSE
+%token WHILE,TRUE, FALSE,
 %token EQ, LEQ, GEQ, NEQ 
 %token AND, OR
+%token ASAD, INCR
 
-%right '='
-%left OR
-%left AND
-%left  '>' '<' EQ LEQ GEQ NEQ
-%left '+' '-'
-%left '*' '/' '%'
-%left '!' 
+// https://en.wikipedia.org/wiki/Operators_in_C_and_C%2B%2B#Operator_precedence
+
+%right '=' ASAD				// 16
+%left OR						// 15
+%left AND						// 14
+%left  '>' '<' EQ LEQ GEQ NEQ	// 9 ~ 10
+%left '+' '-'					// 6
+%left '*' '/' '%'				// 5
+%left '!' INCR					// 3  (prefix incr ~ postfix incr: 2)
 
 %type <sval> ID
 %type <sval> LIT
@@ -27,37 +30,36 @@
 
 %%
 
-prog : { geraInicio(); } dList mainF { geraAreaDados(); geraAreaLiterais(); } 
+prog: { gcStart(); } dList mainF { gcDataArea(); gcLiteralsArea(); } 
+	;
+
+mainF: VOID MAIN '(' ')'   { System.out.println("_start:"); }
+    	'{' lcmd  { gcEnd(); } '}'
+     ; 
+
+dList: decl dList 
+	 | 
 	 ;
 
-mainF : VOID MAIN '(' ')'   { System.out.println("_start:"); }
-        '{' lcmd  { geraFinal(); } '}'
-      ; 
-
-dList : decl dList 
-	  | 
-	  ;
-
-decl : type ID ';' {  Symbol nodo = ts.pesquisa($2);
+decl: type ID ';' {  Symbol nodo = ts.pesquisa($2);
     	                if (nodo != null) 
-                            yyerror("(sem) variavel >" + $2 + "< jah declarada");
+                            yyerror("Semantic: variablel >" + $2 + "< already declared");
                         else ts.insert(new Symbol($2, $1)); 
 					}
-      ;
+    ;
 
-type : INT    { $$ = INT; }
-     | FLOAT  { $$ = FLOAT; }
-     | BOOL   { $$ = BOOL; }
-     ;
+type: INT    { $$ = INT; }
+    | FLOAT  { $$ = FLOAT; }
+    | BOOL   { $$ = BOOL; }
+    ;
 
-lcmd : lcmd cmd
-	 |
-	 ;
+lcmd: lcmd cmd
+	|
+	;
 	   
-cmd :  ID '=' exp	';' {  System.out.println("\tPOPL %EDX");
-  						   System.out.println("\tMOVL %EDX, _"+$1);
-					    }
-	| '{' lcmd '}' { System.out.println("\t\t# terminou o bloco..."); }
+cmd:  exp ';'		 { System.out.println("\tPOPL %EDX"); /* clear stack residue */ }
+	| '{' lcmd '}' { System.out.println("\t\t# block is over..."); }
+
 	| WRITE '(' LIT ')' ';' { 	
 								strTab.add($3);
                                 System.out.println("\tMOVL $_str_"+strCount+"Len, %EDX"); 
@@ -66,6 +68,7 @@ cmd :  ID '=' exp	';' {  System.out.println("\tPOPL %EDX");
 								System.out.println("\tCALL _writeln"); 
                                 strCount++;
 							}
+
     | WRITE '(' LIT 		{ 
 								strTab.add($3);
                             	System.out.println("\tMOVL $_str_"+strCount+"Len, %EDX"); 
@@ -79,12 +82,14 @@ cmd :  ID '=' exp	';' {  System.out.println("\tPOPL %EDX");
 			 						System.out.println("\tCALL _write");	
 			 						System.out.println("\tCALL _writeln"); 
                         		}
+
     | READ '(' ID ')' ';'		{
 									System.out.println("\tPUSHL $_"+$3);
 									System.out.println("\tCALL _read");
 									System.out.println("\tPOPL %EDX");
 									System.out.println("\tMOVL %EAX, (%EDX)");
 								}
+
     | WHILE 	{
 					pRot.push(proxRot);  proxRot += 2;
 					System.out.printf("rot_%02d:\n",pRot.peek());
@@ -113,7 +118,7 @@ cmd :  ID '=' exp	';' {  System.out.println("\tPOPL %EDX");
     ;
      
      
-restoIf : ELSE  {
+restoIf: ELSE  {
 					System.out.printf("\tJMP rot_%02d\n", pRot.peek()+1);
 					System.out.printf("rot_%02d:\n",pRot.peek());
 								
@@ -126,26 +131,30 @@ restoIf : ELSE  {
 		;										
 
 
-exp : NUM  				{ System.out.println("\tPUSHL $"+$1); } 
-    | TRUE  			{ System.out.println("\tPUSHL $1"); } 
-    | FALSE  			{ System.out.println("\tPUSHL $0"); }      
- 	| ID   				{ System.out.println("\tPUSHL _"+$1); }
-    | '(' exp ')'
-    | '!' exp       	{ gcExpNot(); }
-    | exp '+' exp		{ gcExpArit('+'); }
-	| exp '-' exp		{ gcExpArit('-'); }
-	| exp '*' exp		{ gcExpArit('*'); }
-	| exp '/' exp		{ gcExpArit('/'); }
-	| exp '%' exp		{ gcExpArit('%'); }
-	| exp '>' exp		{ gcExpRel('>'); }
-	| exp '<' exp		{ gcExpRel('<'); }											
-	| exp EQ exp		{ gcExpRel(EQ); }											
-	| exp LEQ exp		{ gcExpRel(LEQ); }											
-	| exp GEQ exp		{ gcExpRel(GEQ); }											
-	| exp NEQ exp		{ gcExpRel(NEQ); }											
-	| exp OR exp		{ gcExpLog(OR); }											
-	| exp AND exp		{ gcExpLog(AND); }											
-	;							
+exp: NUM  				{ System.out.println("\tPUSHL $"+$1); } 
+   | TRUE  				{ System.out.println("\tPUSHL $1"); } 
+   | FALSE  			{ System.out.println("\tPUSHL $0"); }      
+   | ID   				{ System.out.println("\tPUSHL _"+$1); }		
+   | ID '=' exp		{ gcExpAssign('=', $1); }
+	 | ID ASAD exp 	{ gcExpAssign(ASAD, $1); }
+	 | ID INCR			{ gcExpIncr(IncrType.Postfix, $1); }
+	 | INCR ID			{ gcExpIncr(IncrType.Prefix, $2); }		
+   | '(' exp ')'
+   | '!' exp      { gcExpNot(); }
+   | exp '+' exp	{ gcExpArit('+'); }
+   | exp '-' exp	{ gcExpArit('-'); }
+   | exp '*' exp	{ gcExpArit('*'); }
+   | exp '/' exp	{ gcExpArit('/'); }
+   | exp '%' exp	{ gcExpArit('%'); }
+   | exp '>' exp	{ gcExpRel('>'); }
+   | exp '<' exp	{ gcExpRel('<'); }  									
+   | exp EQ exp		{ gcExpRel(EQ); }											
+   | exp LEQ exp	{ gcExpRel(LEQ); }											
+   | exp GEQ exp	{ gcExpRel(GEQ); }											
+   | exp NEQ exp	{ gcExpRel(NEQ); }											
+   | exp OR exp		{ gcExpLog(OR); }											
+   | exp AND exp	{ gcExpLog(AND); }
+   ;							
 
 %%
 
@@ -175,7 +184,7 @@ private int yylex () {
 
 
 public void yyerror (String error) {
-    System.err.println ("Error: " + error + "  linha: " + lexer.getLine());
+    System.err.println ("Error: " + error + "  line: " + lexer.getLine());
 }
 
 
@@ -205,8 +214,41 @@ public static void main(String args[]) throws IOException {
     }
 }
 
+enum IncrType {	Postfix, Prefix }
+
+public void gcExpIncr(IncrType incrType, String id) {
+	System.out.println("\tPUSHL _"+id); //fetch ident value -> stack
+	switch (incrType) {
+		case Prefix: 
+			System.out.println("\tPUSHL $1");   //fetch $1
+			gcExpArit('+'); //sum ident value + 1
+			gcExpAssign('=', id);
+			break;
+		case Postfix:  
+			System.out.println("\tPUSHL _"+id); //fetch again (the first will remain in the stack with the old value)
+			System.out.println("\tPUSHL $1");   //fetch $1
+			gcExpArit('+'); //sum ident value + 1
+			gcExpAssign('=', id);
+			System.out.println("\tPOPL %EDX"); /* clear stack residue */ 
+			break;
+	}
+}
+
+public void gcExpAssign(int opAssign, String id) {
+	
+	switch (opAssign) {
+		case '=': 
+			System.out.println("\tPOPL %EDX"); //take value
+  		System.out.println("\tMOVL %EDX, _"+id); //put to variable (ID)
+	   	System.out.println("\tPUSHL %EDX"); //push to the stack again
+			break;
+		case ASAD: break; //todo
+	}
+	
+
+}
 							
-void gcExpArit(int oparit) {
+public void gcExpArit(int oparit) {
 	System.out.println("\tPOPL %EBX");
 	System.out.println("\tPOPL %EAX");
 
@@ -243,10 +285,9 @@ public void gcExpRel(int oprel) {
        case Parser.NEQ: System.out.println("\tSETNE %AL"); break;
     }
     
-System.out.println("\tPUSHL %EAX");
+	System.out.println("\tPUSHL %EAX");
 
 }
-
 
 public void gcExpLog(int oplog) {
 
@@ -275,14 +316,14 @@ public void gcExpNot(){
   	System.out.println("\tPUSHL %EAX");
 }
 
-private void geraInicio() {
+private void gcStart() {
 	System.out.println(".text\n\n#\t Eduardo Andrade - eduardo.a@edu.pucrs.br - 17111012-5"); 
 	System.out.println("#\t Julia Alberti - julia.maia@edu.pucrs.br - 18106160-7"); 
 	System.out.println("#\t Marcelo Heredia - marcelo.heredia@edu.pucrs.br - 16204047-1 \n#\n"); 
 	System.out.println(".GLOBL _start\n\n");  
 }
 
-private void geraFinal(){
+private void gcEnd(){
 	
 	System.out.println("\n\n");
 	System.out.println("#");
@@ -366,7 +407,7 @@ private void geraFinal(){
 	System.out.println("\n");
 }
 
-private void geraAreaDados(){
+private void gcDataArea(){
 	System.out.println("");		
 	System.out.println("#");
 	System.out.println("# area de dados");
@@ -380,7 +421,7 @@ private void geraAreaDados(){
 	
 }
 
-private void geraAreaLiterais() { 
+private void gcLiteralsArea() { 
 
     System.out.println("#\n# area de literais\n#");
     System.out.println("__msg:");
@@ -395,4 +436,3 @@ private void geraAreaLiterais() {
 	    System.out.println("_str_"+i+"Len = . - _str_"+i);  
 	}		
 }
-   

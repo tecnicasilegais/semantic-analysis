@@ -24,12 +24,12 @@
 %right '='                      // 16
 %left OR                        // 15
 %left AND                       // 14
-%nonassoc EQ, NEQ               // 10
-%nonassoc '>', '<', GTEQ, LTEQ  // 9
-%left '+', '-'                  // 6
+%nonassoc EQ NEQ               // 10
+%nonassoc '>' '<' GTEQ LTEQ  // 9
+%left '+' '-'                  // 6
 %left "*"                       // 5
 %right '!'                      // 3
-%left '[', INCR, DECR           // 2
+%left '[' INCR DECR           // 2
 
 %type <sval> IDENT
 %type <sval> LITERAL

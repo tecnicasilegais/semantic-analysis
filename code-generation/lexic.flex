@@ -55,26 +55,29 @@ NL  = \n | \r | \r\n
 {NUM}  { yyparser.yylval = new ParserVal(yytext()); 
          return Parser.NUM; }
 
-"=="   {  return Parser.EQ; }
-"<="   {  return Parser.LEQ; }
-">="   {  return Parser.GEQ; }
-"!="   {  return Parser.NEQ; }
+"+="   { return Parser.ASAD; }
+"++"   { return Parser.INCR; }
+
+"=="   { return Parser.EQ; }
+"<="   { return Parser.LEQ; }
+">="   { return Parser.GEQ; }
+"!="   { return Parser.NEQ; }
 
 "&&"   { return Parser.AND; }
-"||"   {  return Parser.OR; }
+"||"   { return Parser.OR; }
 
-int    { return Parser.INT;     }
-float  { return Parser.FLOAT;   }
+int    { return Parser.INT;}
+float  { return Parser.FLOAT; }
 bool   { return Parser.BOOL; }
 void   { return Parser.VOID; }
 main   { return Parser.MAIN; }
-write   { return Parser.WRITE; }
+write  { return Parser.WRITE; }
 read   { return Parser.READ; }
-while   { return Parser.WHILE; }
-if   { return Parser.IF; }
+while  { return Parser.WHILE; }
+if     { return Parser.IF; }
 else   { return Parser.ELSE; }
 true   { return Parser.TRUE; }
-false   { return Parser.FALSE; }
+false  { return Parser.FALSE; }
 
 
 
