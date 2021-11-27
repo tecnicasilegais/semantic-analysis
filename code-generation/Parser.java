@@ -16,7 +16,7 @@
 
 
 
-//#line 3 "exemploGC.y"
+//#line 3 "CodeGeneration.y"
   import java.io.*;
   import java.util.ArrayList;
   import java.util.Stack;
@@ -396,11 +396,11 @@ final static String yyrule[] = {
 "exp : exp AND exp",
 };
 
-//#line 151 "exemploGC.y"
+//#line 151 "CodeGeneration.y"
 
 private Yylex lexer;
 
-private TabSimb ts = new TabSimb();
+private Tab ts = new Tab();
 
 private int strCount = 0;
 private ArrayList<String> strTab = new ArrayList<String>();
@@ -525,7 +525,9 @@ public void gcExpNot(){
 }
 
 private void geraInicio() {
-	System.out.println(".text\n\n#\t nome COMPLETO e matricula dos componentes do grupo...\n#\n"); 
+	System.out.println(".text\n\n#\t Eduardo Andrade - eduardo.a@edu.pucrs.br - 17111012-5"); 
+	System.out.println("#\t Julia Alberti - julia.maia@edu.pucrs.br - 18106160-7"); 
+	System.out.println("#\t Marcelo Heredia - marcelo.heredia@edu.pucrs.br - 16204047-1 \n#\n"); 
 	System.out.println(".GLOBL _start\n\n");  
 }
 
@@ -643,7 +645,7 @@ private void geraAreaLiterais() {
 	}		
 }
    
-//#line 575 "Parser.java"
+//#line 577 "Parser.java"
 //###############################################################
 // method: yylexdebug : check lexer state
 //###############################################################
@@ -798,53 +800,53 @@ boolean doaction;
       {
 //########## USER-SUPPLIED ACTIONS ##########
 case 1:
-//#line 30 "exemploGC.y"
+//#line 30 "CodeGeneration.y"
 { geraInicio(); }
 break;
 case 2:
-//#line 30 "exemploGC.y"
+//#line 30 "CodeGeneration.y"
 { geraAreaDados(); geraAreaLiterais(); }
 break;
 case 3:
-//#line 33 "exemploGC.y"
+//#line 33 "CodeGeneration.y"
 { System.out.println("_start:"); }
 break;
 case 4:
-//#line 34 "exemploGC.y"
+//#line 34 "CodeGeneration.y"
 { geraFinal(); }
 break;
 case 8:
-//#line 41 "exemploGC.y"
-{  TS_entry nodo = ts.pesquisa(val_peek(1).sval);
+//#line 41 "CodeGeneration.y"
+{  Symbol nodo = ts.pesquisa(val_peek(1).sval);
     	                if (nodo != null) 
                             yyerror("(sem) variavel >" + val_peek(1).sval + "< jah declarada");
-                        else ts.insert(new TS_entry(val_peek(1).sval, val_peek(2).ival)); 
+                        else ts.insert(new Symbol(val_peek(1).sval, val_peek(2).ival)); 
 					}
 break;
 case 9:
-//#line 48 "exemploGC.y"
+//#line 48 "CodeGeneration.y"
 { yyval.ival = INT; }
 break;
 case 10:
-//#line 49 "exemploGC.y"
+//#line 49 "CodeGeneration.y"
 { yyval.ival = FLOAT; }
 break;
 case 11:
-//#line 50 "exemploGC.y"
+//#line 50 "CodeGeneration.y"
 { yyval.ival = BOOL; }
 break;
 case 14:
-//#line 57 "exemploGC.y"
+//#line 57 "CodeGeneration.y"
 {  System.out.println("\tPOPL %EDX");
   						   System.out.println("\tMOVL %EDX, _"+val_peek(3).sval);
 					    }
 break;
 case 15:
-//#line 60 "exemploGC.y"
+//#line 60 "CodeGeneration.y"
 { System.out.println("\t\t# terminou o bloco..."); }
 break;
 case 16:
-//#line 61 "exemploGC.y"
+//#line 61 "CodeGeneration.y"
 { 	
 								strTab.add(val_peek(2).sval);
                                 System.out.println("\tMOVL $_str_"+strCount+"Len, %EDX"); 
@@ -855,7 +857,7 @@ case 16:
 							}
 break;
 case 17:
-//#line 69 "exemploGC.y"
+//#line 69 "CodeGeneration.y"
 { 
 								strTab.add(val_peek(0).sval);
                             	System.out.println("\tMOVL $_str_"+strCount+"Len, %EDX"); 
@@ -865,7 +867,7 @@ case 17:
 							}
 break;
 case 18:
-//#line 77 "exemploGC.y"
+//#line 77 "CodeGeneration.y"
 { 
 			 						System.out.println("\tPOPL %EAX"); 
 			 						System.out.println("\tCALL _write");	
@@ -873,7 +875,7 @@ case 18:
                         		}
 break;
 case 19:
-//#line 82 "exemploGC.y"
+//#line 82 "CodeGeneration.y"
 {
 									System.out.println("\tPUSHL $_"+val_peek(2).sval);
 									System.out.println("\tCALL _read");
@@ -882,14 +884,14 @@ case 19:
 								}
 break;
 case 20:
-//#line 88 "exemploGC.y"
+//#line 88 "CodeGeneration.y"
 {
 					pRot.push(proxRot);  proxRot += 2;
 					System.out.printf("rot_%02d:\n",pRot.peek());
 				}
 break;
 case 21:
-//#line 92 "exemploGC.y"
+//#line 92 "CodeGeneration.y"
 {
 			 			System.out.println("\tPOPL %EAX   # desvia se falso...");
 						System.out.println("\tCMPL $0, %EAX");
@@ -897,7 +899,7 @@ case 21:
 					}
 break;
 case 22:
-//#line 97 "exemploGC.y"
+//#line 97 "CodeGeneration.y"
 {
 					System.out.printf("\tJMP rot_%02d   # terminou cmd na linha de cima\n", pRot.peek());
 					System.out.printf("rot_%02d:\n",(int)pRot.peek()+1);
@@ -905,7 +907,7 @@ case 22:
 				}
 break;
 case 23:
-//#line 102 "exemploGC.y"
+//#line 102 "CodeGeneration.y"
 {	
 						pRot.push(proxRot);  proxRot += 2;
 										
@@ -915,14 +917,14 @@ case 23:
 					}
 break;
 case 24:
-//#line 109 "exemploGC.y"
+//#line 109 "CodeGeneration.y"
 {
 								System.out.printf("rot_%02d:\n",pRot.peek()+1);
 								pRot.pop();
 							}
 break;
 case 25:
-//#line 116 "exemploGC.y"
+//#line 116 "CodeGeneration.y"
 {
 					System.out.printf("\tJMP rot_%02d\n", pRot.peek()+1);
 					System.out.printf("rot_%02d:\n",pRot.peek());
@@ -930,85 +932,85 @@ case 25:
 				}
 break;
 case 27:
-//#line 122 "exemploGC.y"
+//#line 122 "CodeGeneration.y"
 {
 		    	System.out.printf("\tJMP rot_%02d\n", pRot.peek()+1);
 				System.out.printf("rot_%02d:\n",pRot.peek());
 			}
 break;
 case 28:
-//#line 129 "exemploGC.y"
+//#line 129 "CodeGeneration.y"
 { System.out.println("\tPUSHL $"+val_peek(0).sval); }
 break;
 case 29:
-//#line 130 "exemploGC.y"
+//#line 130 "CodeGeneration.y"
 { System.out.println("\tPUSHL $1"); }
 break;
 case 30:
-//#line 131 "exemploGC.y"
+//#line 131 "CodeGeneration.y"
 { System.out.println("\tPUSHL $0"); }
 break;
 case 31:
-//#line 132 "exemploGC.y"
+//#line 132 "CodeGeneration.y"
 { System.out.println("\tPUSHL _"+val_peek(0).sval); }
 break;
 case 33:
-//#line 134 "exemploGC.y"
+//#line 134 "CodeGeneration.y"
 { gcExpNot(); }
 break;
 case 34:
-//#line 135 "exemploGC.y"
+//#line 135 "CodeGeneration.y"
 { gcExpArit('+'); }
 break;
 case 35:
-//#line 136 "exemploGC.y"
+//#line 136 "CodeGeneration.y"
 { gcExpArit('-'); }
 break;
 case 36:
-//#line 137 "exemploGC.y"
+//#line 137 "CodeGeneration.y"
 { gcExpArit('*'); }
 break;
 case 37:
-//#line 138 "exemploGC.y"
+//#line 138 "CodeGeneration.y"
 { gcExpArit('/'); }
 break;
 case 38:
-//#line 139 "exemploGC.y"
+//#line 139 "CodeGeneration.y"
 { gcExpArit('%'); }
 break;
 case 39:
-//#line 140 "exemploGC.y"
+//#line 140 "CodeGeneration.y"
 { gcExpRel('>'); }
 break;
 case 40:
-//#line 141 "exemploGC.y"
+//#line 141 "CodeGeneration.y"
 { gcExpRel('<'); }
 break;
 case 41:
-//#line 142 "exemploGC.y"
+//#line 142 "CodeGeneration.y"
 { gcExpRel(EQ); }
 break;
 case 42:
-//#line 143 "exemploGC.y"
+//#line 143 "CodeGeneration.y"
 { gcExpRel(LEQ); }
 break;
 case 43:
-//#line 144 "exemploGC.y"
+//#line 144 "CodeGeneration.y"
 { gcExpRel(GEQ); }
 break;
 case 44:
-//#line 145 "exemploGC.y"
+//#line 145 "CodeGeneration.y"
 { gcExpRel(NEQ); }
 break;
 case 45:
-//#line 146 "exemploGC.y"
+//#line 146 "CodeGeneration.y"
 { gcExpLog(OR); }
 break;
 case 46:
-//#line 147 "exemploGC.y"
+//#line 147 "CodeGeneration.y"
 { gcExpLog(AND); }
 break;
-//#line 935 "Parser.java"
+//#line 937 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####

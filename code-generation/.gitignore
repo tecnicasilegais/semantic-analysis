@@ -1,5 +1,7 @@
 # Compiled class file
 *.class
+*.o
+*.s
 
 # jetbrains
 .idea/
@@ -13,6 +15,8 @@
 *.output
 Parser.java
 Yylex.java
+
+output/*
 
 # BlueJ files
 *.ctxt

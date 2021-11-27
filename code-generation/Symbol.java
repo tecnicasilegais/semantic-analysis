@@ -5,7 +5,7 @@
  * @author (your name) 
  * @version (a version number or a date)
  */
-public class TS_entry
+public class Symbol
 {
    private String id;
    private int tipo;
@@ -13,14 +13,14 @@ public class TS_entry
    private int tipoBase;
 
 
-   public TS_entry(String umId, int umTipo, int ne, int umTBase) {
+   public Symbol(String umId, int umTipo, int ne, int umTBase) {
       id = umId;
       tipo = umTipo;
       nElem = ne;
       tipoBase = umTBase;
    }
 
-   public TS_entry(String umId, int umTipo) {
+   public Symbol(String umId, int umTipo) {
       this(umId, umTipo, -1, -1);
    }
 

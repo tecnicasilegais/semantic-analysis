@@ -38,10 +38,10 @@ dList : decl dList
 	  | 
 	  ;
 
-decl : type ID ';' {  TS_entry nodo = ts.pesquisa($2);
+decl : type ID ';' {  Symbol nodo = ts.pesquisa($2);
     	                if (nodo != null) 
                             yyerror("(sem) variavel >" + $2 + "< jah declarada");
-                        else ts.insert(new TS_entry($2, $1)); 
+                        else ts.insert(new Symbol($2, $1)); 
 					}
       ;
 
@@ -151,7 +151,7 @@ exp : NUM  				{ System.out.println("\tPUSHL $"+$1); }
 
 private Yylex lexer;
 
-private TabSimb ts = new TabSimb();
+private Tab ts = new Tab();
 
 private int strCount = 0;
 private ArrayList<String> strTab = new ArrayList<String>();
@@ -276,7 +276,9 @@ public void gcExpNot(){
 }
 
 private void geraInicio() {
-	System.out.println(".text\n\n#\t nome COMPLETO e matricula dos componentes do grupo...\n#\n"); 
+	System.out.println(".text\n\n#\t Eduardo Andrade - eduardo.a@edu.pucrs.br - 17111012-5"); 
+	System.out.println("#\t Julia Alberti - julia.maia@edu.pucrs.br - 18106160-7"); 
+	System.out.println("#\t Marcelo Heredia - marcelo.heredia@edu.pucrs.br - 16204047-1 \n#\n"); 
 	System.out.println(".GLOBL _start\n\n");  
 }
 

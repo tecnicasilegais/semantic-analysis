@@ -17,11 +17,11 @@ build: clean Parser.class
 clean:
 	rm -f *~ *.class *.o *.s Yylex.java Parser.java y.output
 
-Parser.class: TS_entry.java TabSimb.java Yylex.java Parser.java
+Parser.class: Symbol.java Tab.java Yylex.java Parser.java
 	$(JAVAC) Parser.java
 
-Yylex.java: exemploGC.flex
-	$(JFLEX) exemploGC.flex
+Yylex.java: lexic.flex
+	$(JFLEX) lexic.flex
 
-Parser.java: exemploGC.y
-	$(BYACCJ) exemploGC.y
+Parser.java: CodeGeneration.y
+	$(BYACCJ) CodeGeneration.y
