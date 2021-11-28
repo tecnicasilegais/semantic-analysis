@@ -1,13 +1,21 @@
 	
 %{
+  /**
+   * Trabalho final da disciplina Construção de Compiladores 2021/2
+   * 
+   * Eduardo Andrade - eduardo.a@edu.pucrs.br - 17111012-5
+   * Julia Alberti - julia.maia@edu.pucrs.br - 18106160-7
+   * Marcelo Heredia - marcelo.heredia@edu.pucrs.br - 16204047-1
+   */
   import java.io.*;
   import java.util.ArrayList;
   import java.util.Stack;
 %}
  
 
-%token ID, INT, FLOAT, BOOL, NUM, LIT, VOID, MAIN, READ, WRITE, IF, ELSE
-%token WHILE,TRUE, FALSE,
+%token ID, INT, FLOAT, BOOL, NUM, LIT, VOID, TRUE, FALSE
+%token MAIN, READ, WRITE, IF, ELSE
+%token WHILE, FOR, BREAK, CONTINUE
 %token EQ, LEQ, GEQ, NEQ 
 %token AND, OR
 %token ASAD, INCR
@@ -20,12 +28,13 @@
 %left  '>' '<' EQ LEQ GEQ NEQ	// 9 ~ 10
 %left '+' '-'					// 6
 %left '*' '/' '%'				// 5
-%left '!' INCR					// 3  (prefix incr ~ postfix incr: 2)
+%left '!' INCR '['				// 3  (prefix incr ~ postfix incr: 2)
 
 %type <sval> ID
 %type <sval> LIT
-%type <sval> NUM
+%type <ival> NUM
 %type <ival> type
+%type <sval> assignable
 
 
 %%
@@ -41,12 +50,28 @@ dList: decl dList
 	 | 
 	 ;
 
-decl: type ID ';' {  Symbol nodo = ts.pesquisa($2);
-    	                if (nodo != null) 
-                            yyerror("Semantic: variablel >" + $2 + "< already declared");
-                        else ts.insert(new Symbol($2, $1)); 
-					}
+decl: type {currentType = $1;} declAux ';' 
     ;
+
+declAux: Lid
+			 | ID '[' NUM ']' {
+				 									Symbol node = ts.find($1);
+    	                		if (node != null) 
+                            yyerror("Semantic: variable >" + $1 + "< already defined");
+                      		else ts.insert(new Symbol($1, Tab.ARRAY, $3, currentType)); 
+			 									}
+			 ;
+
+Lid: Lid ',' id
+	 | id
+	 ;
+id: ID							{  
+											Symbol node = ts.find($1);
+    	                if (node != null) 
+                        yyerror("Semantic: variable >" + $1 + "< already defined");
+                      else ts.insert(new Symbol($1, currentType)); 
+										}
+	;
 
 type: INT    { $$ = INT; }
     | FLOAT  { $$ = FLOAT; }
@@ -57,104 +82,69 @@ lcmd: lcmd cmd
 	|
 	;
 	   
-cmd:  exp ';'		 { System.out.println("\tPOPL %EDX"); /* clear stack residue */ }
-	| '{' lcmd '}' { System.out.println("\t\t# block is over..."); }
+cmd:  exp ';'		 						{ System.out.println("\tPOPL %EDX \t# remove residue"); /* clear stack residue */ }
+	 | '{' lcmd '}' 					{ System.out.println("\t\t# block is over..."); }
+	 | WRITE '(' LIT ')' ';' 	{ gcWriteLit($3, true); }
+   | WRITE '(' LIT 					{ gcWriteLit($3, false); }
+		',' exp ')' ';'					{ gcWriteExp(); }
 
-	| WRITE '(' LIT ')' ';' { 	
-								strTab.add($3);
-                                System.out.println("\tMOVL $_str_"+strCount+"Len, %EDX"); 
-								System.out.println("\tMOVL $_str_"+strCount+", %ECX"); 
-                                System.out.println("\tCALL _writeLit"); 
-								System.out.println("\tCALL _writeln"); 
-                                strCount++;
-							}
+   | READ '(' ID ')' ';'		{ gcRead($3); }
+   | WHILE 	{ gcLoopInit(LoopType.While); } 
+			'(' exp ')' { gcLoopStopCriteria(LoopType.While); } 
+			cmd		{ gcLoopEnd(); }  
 
-    | WRITE '(' LIT 		{ 
-								strTab.add($3);
-                            	System.out.println("\tMOVL $_str_"+strCount+"Len, %EDX"); 
-								System.out.println("\tMOVL $_str_"+strCount+", %ECX"); 
-                                System.out.println("\tCALL _writeLit"); 
-								strCount++;
-							}
+	 | FOR '(' forExp ';' { gcLoopInit(LoopType.For); } 
+	 		forStopCriteria ';' { gcLoopStopCriteria(LoopType.For); }  
+			forExp ')' { gcForIncrExp(); } 
+			cmd { gcLoopEnd(); } 
 
-                ',' exp ')' ';'	{ 
-			 						System.out.println("\tPOPL %EAX"); 
-			 						System.out.println("\tCALL _write");	
-			 						System.out.println("\tCALL _writeln"); 
-                        		}
-
-    | READ '(' ID ')' ';'		{
-									System.out.println("\tPUSHL $_"+$3);
-									System.out.println("\tCALL _read");
-									System.out.println("\tPOPL %EDX");
-									System.out.println("\tMOVL %EAX, (%EDX)");
-								}
-
-    | WHILE 	{
-					pRot.push(proxRot);  proxRot += 2;
-					System.out.printf("rot_%02d:\n",pRot.peek());
-				} 
-		'(' exp ')' {
-			 			System.out.println("\tPOPL %EAX   # desvia se falso...");
-						System.out.println("\tCMPL $0, %EAX");
-						System.out.printf("\tJE rot_%02d\n", (int)pRot.peek()+1);
-					} 
-		cmd		{
-					System.out.printf("\tJMP rot_%02d   # terminou cmd na linha de cima\n", pRot.peek());
-					System.out.printf("rot_%02d:\n",(int)pRot.peek()+1);
-					pRot.pop();
-				}  
-	| IF '(' exp 	{	
-						pRot.push(proxRot);  proxRot += 2;
-										
-						System.out.println("\tPOPL %EAX");
-						System.out.println("\tCMPL $0, %EAX");
-						System.out.printf("\tJE rot_%02d\n", pRot.peek());
-					}
-			')' cmd restoIf {
-								System.out.printf("rot_%02d:\n",pRot.peek()+1);
-								pRot.pop();
-							}
-    ;
+	 | IF '(' exp 	{	gcIfExp(); } ')' cmd restoIf { gcIfEnd(); }
+	 | BREAK 	 	';' { System.out.printf("\tJMP rot_%02d \t#break\n", pRotLoop.peek()+1); }
+	 | CONTINUE ';' { System.out.printf("\tJMP rot_%02d \t#continue\n", pRotLoop.peek()); }
+   ;
      
      
-restoIf: ELSE  {
-					System.out.printf("\tJMP rot_%02d\n", pRot.peek()+1);
-					System.out.printf("rot_%02d:\n",pRot.peek());
-								
-				} 							
-			cmd  
-		| 	{
-		    	System.out.printf("\tJMP rot_%02d\n", pRot.peek()+1);
-				System.out.printf("rot_%02d:\n",pRot.peek());
-			} 
-		;										
+restoIf: ELSE  {gcElseExp();} cmd  
+			 | 			 {gcElseExp();} 
+			 ;										
 
+forExp: exp { System.out.println("\tPOPL %EDX"); /* clear stack residue */ }
+			|
+			;
 
-exp: NUM  				{ System.out.println("\tPUSHL $"+$1); } 
-   | TRUE  				{ System.out.println("\tPUSHL $1"); } 
-   | FALSE  			{ System.out.println("\tPUSHL $0"); }      
-   | ID   				{ System.out.println("\tPUSHL _"+$1); }		
-   | ID '=' exp		{ gcExpAssign('=', $1); }
-	 | ID ASAD exp 	{ gcExpAssign(ASAD, $1); }
-	 | ID INCR			{ gcExpIncr(IncrType.Postfix, $1); }
-	 | INCR ID			{ gcExpIncr(IncrType.Prefix, $2); }		
+forStopCriteria: exp
+							 | 			{ System.out.println("\tPUSHL $1"); /* infinite loop*/ }
+			 				 ;
+
+exp: NUM  									{ System.out.println("\tPUSHL $"+$1); } 
+   | TRUE  									{ System.out.println("\tPUSHL $1"); } 
+   | FALSE  								{ System.out.println("\tPUSHL $0"); }   
+	 | ID											{ System.out.println("\tPUSHL _"+$1);}
+   | assignable '=' exp			{ gcExpAssign('=', $1); }
+	 | ID '[' exp ']' 				{ gcAccessArrayPos($1);}   
+	 | assignable ASAD exp 		{ gcExpAssign(ASAD, $1); }
+	 | assignable INCR				{ gcExpIncr(IncrType.Postfix, $1); }
+	 | INCR assignable				{ gcExpIncr(IncrType.Prefix, $2); }		
    | '(' exp ')'
-   | '!' exp      { gcExpNot(); }
-   | exp '+' exp	{ gcExpArit('+'); }
-   | exp '-' exp	{ gcExpArit('-'); }
-   | exp '*' exp	{ gcExpArit('*'); }
-   | exp '/' exp	{ gcExpArit('/'); }
-   | exp '%' exp	{ gcExpArit('%'); }
-   | exp '>' exp	{ gcExpRel('>'); }
-   | exp '<' exp	{ gcExpRel('<'); }  									
-   | exp EQ exp		{ gcExpRel(EQ); }											
-   | exp LEQ exp	{ gcExpRel(LEQ); }											
-   | exp GEQ exp	{ gcExpRel(GEQ); }											
-   | exp NEQ exp	{ gcExpRel(NEQ); }											
-   | exp OR exp		{ gcExpLog(OR); }											
-   | exp AND exp	{ gcExpLog(AND); }
-   ;							
+   | '!' exp      					{ gcExpNot(); }
+   | exp '+' exp						{ gcExpArit('+'); }
+   | exp '-' exp						{ gcExpArit('-'); }
+   | exp '*' exp						{ gcExpArit('*'); }
+   | exp '/' exp						{ gcExpArit('/'); }
+   | exp '%' exp						{ gcExpArit('%'); }
+   | exp '>' exp						{ gcExpRel('>'); }
+   | exp '<' exp						{ gcExpRel('<'); }  									
+   | exp EQ exp							{ gcExpRel(EQ); }											
+   | exp LEQ exp						{ gcExpRel(LEQ); }											
+   | exp GEQ exp						{ gcExpRel(GEQ); }											
+   | exp NEQ exp						{ gcExpRel(NEQ); }											
+   | exp OR exp							{ gcExpLog(OR); }											
+   | exp AND exp						{ gcExpLog(AND); }
+   ;		
+	
+assignable: ID   						{ $$ = $1; }	
+					| ID '[' exp ']' 	{ $$ = $1; }	
+					;
 
 %%
 
@@ -165,10 +155,13 @@ private Tab ts = new Tab();
 private int strCount = 0;
 private ArrayList<String> strTab = new ArrayList<String>();
 
-private Stack<Integer> pRot = new Stack<Integer>();
+private Stack<Integer> pRotCond = new Stack<Integer>();
+
+private Stack<Integer> pRotLoop = new Stack<Integer>();
+
 private int proxRot = 1;
 
-public static int ARRAY = 100;
+private int currentType = INT;
 
 private int yylex () {
 	int yyl_return = -1;
@@ -196,7 +189,7 @@ public void setDebug(boolean debug) {
     yydebug = debug;
 }
 
-public void listarTS() { ts.listar();}
+public void listarTS() { ts.show();}
 
 public static void main(String args[]) throws IOException {
 
@@ -215,37 +208,150 @@ public static void main(String args[]) throws IOException {
 }
 
 enum IncrType {	Postfix, Prefix }
+enum LoopType { For, While }
 
-public void gcExpIncr(IncrType incrType, String id) {
-	System.out.println("\tPUSHL _"+id); //fetch ident value -> stack
-	switch (incrType) {
-		case Prefix: 
-			System.out.println("\tPUSHL $1");   //fetch $1
-			gcExpArit('+'); //sum ident value + 1
-			gcExpAssign('=', id);
+public void gcIfExp() {
+	pRotCond.push(proxRot);  proxRot += 2;
+	System.out.println("\tPOPL %EAX");
+	System.out.println("\tCMPL $0, %EAX");
+	System.out.printf("\tJE rot_%02d\n", pRotCond.peek());
+}
+
+public void gcIfEnd() {
+	System.out.printf("rot_%02d:\n",pRotCond.peek()+1);
+	pRotCond.pop();
+}
+
+public void gcElseExp() {
+	System.out.printf("\tJMP rot_%02d\n", pRotCond.peek()+1);
+	System.out.printf("rot_%02d:\n",pRotCond.peek());
+}
+
+public void gcLoopInit(LoopType loopType) {
+	switch(loopType) {
+		case While:
+			pRotLoop.push(proxRot);  proxRot += 2;
+			System.out.printf("rot_%02d:\n",pRotLoop.peek());
 			break;
-		case Postfix:  
-			System.out.println("\tPUSHL _"+id); //fetch again (the first will remain in the stack with the old value)
-			System.out.println("\tPUSHL $1");   //fetch $1
-			gcExpArit('+'); //sum ident value + 1
-			gcExpAssign('=', id);
-			System.out.println("\tPOPL %EDX"); /* clear stack residue */ 
+		case For:
+			pRotLoop.push(proxRot);  proxRot += 4;
+			System.out.printf("rot_%02d:\n",pRotLoop.peek()+2);
 			break;
 	}
 }
 
+public void gcLoopStopCriteria(LoopType loopType) {
+			/* check stop criteria */
+	System.out.println("\tPOPL %EAX   \t# jump if false...");
+	System.out.println("\tCMPL $0, %EAX");
+	System.out.printf("\tJE rot_%02d  \t# reach stop criteria? \n", (int)pRotLoop.peek()+1);
+	switch(loopType) {
+		case While:
+			break;
+		case For:
+			System.out.printf("\tJMP rot_%02d \t# going to cmd\n", (int)pRotLoop.peek()+3);
+			/* create label for increment*/
+			System.out.printf("rot_%02d: \t# for incr (?)\n", pRotLoop.peek());
+			break;
+	}
+}
+
+public void gcForIncrExp() {
+	System.out.printf("\tJMP rot_%02d\n", (int)pRotLoop.peek()+2);
+	System.out.printf("rot_%02d:\n", (int)pRotLoop.peek()+3);
+}
+
+public void gcLoopEnd() {
+	System.out.printf("\tJMP rot_%02d \t# finished cmd on previous line\n", pRotLoop.peek());
+	System.out.printf("rot_%02d: \t# end of loop\n", (int)pRotLoop.peek()+1);
+	pRotLoop.pop();
+}
+
+public boolean checkIsArray(String id) {
+	Symbol s = ts.find(id);
+	if(s != null && s.getType() == Tab.ARRAY) {
+		return true;
+	}
+
+	return false;
+}
+
+public void gcArrayPos() {
+	System.out.println("\tPUSHL $4");
+	gcExpArit('*');
+	System.out.println("\tPOPL %EBX");
+}
+
+public void gcAccessArrayPos(String id) {
+	gcArrayPos();
+	System.out.println("\tPUSHL _" + id + "(%EBX)");
+}
+
+public void gcGetVariableValue(String id, boolean isArray) {
+	if(isArray) {
+		gcAccessArrayPos(id);
+		return;
+	}
+	System.out.println("\tPUSHL _"+id); //fetch ident value -> stack
+}
+
+public void gcExpIncr(IncrType incrType, String id) {
+	boolean isArray = checkIsArray(id);
+
+	gcGetVariableValue(id, isArray);
+
+	if(incrType == IncrType.Postfix){
+			if(isArray) //fetch again (the first will remain in the stack with the old value)
+				System.out.println("\tPUSHL _" + id + "(%EBX)");
+			else 
+				System.out.println("\tPUSHL _"+id); 
+	}
+
+	System.out.println("\tPOPL %EAX");
+	System.out.println("\tADDL $1, %EAX"); //%EAX contains the result (i hope...)
+  //System.out.println("\tPUSHL %EAX");
+	//System.out.println("\tPOPL %EDX"); 	
+	if(isArray) {//take value										
+  	System.out.println("\tMOVL %EAX, _" + id + "(%EBX)"); 	//put to variable (ID)
+	}
+	else{
+  	System.out.println("\tMOVL %EAX, _" + id); 	//put to variable (ID)
+	}
+
+	if(incrType == IncrType.Prefix)
+		System.out.println("\tPUSHL %EAX"); 	
+}
+
 public void gcExpAssign(int opAssign, String id) {
+	boolean isArray = checkIsArray(id);
 	
 	switch (opAssign) {
 		case '=': 
-			System.out.println("\tPOPL %EDX"); //take value
-  		System.out.println("\tMOVL %EDX, _"+id); //put to variable (ID)
-	   	System.out.println("\tPUSHL %EDX"); //push to the stack again
+			System.out.println("\tPOPL %EDX"); 				//take value
+			if(isArray) {
+				gcArrayPos();
+  			System.out.println("\tMOVL %EDX, _" + id + "(%EBX)"); 	//put to variable (ID)
+			}
+			else{
+  			System.out.println("\tMOVL %EDX, _"+id); 	//put to variable (ID)
+			}
+	   	System.out.println("\tPUSHL %EDX"); 			//push to the stack again
 			break;
-		case ASAD: break; //todo
-	}
-	
+		case ASAD: 			//the stak already contains the result of the exp (id += >exp<)
+			System.out.println("\tPOPL %ECX"); // gets exp result
+			if(isArray) {
+				gcArrayPos(); //%EBX contains the position
 
+				System.out.println("\tADDL _" + id + "(%EBX), %ECX"); //%ECX contains the result (i hope...)
+
+  			System.out.println("\tMOVL %ECX, _" + id + "(%EBX)"); 	//put to variable (ID)
+			}
+			else {
+				System.out.println("\tADDL _" + id + ", %ECX");
+  			System.out.println("\tMOVL %ECX, _"+id); 	//put to variable (ID)
+			}
+			break;
+	}
 }
 							
 public void gcExpArit(int oparit) {
@@ -294,26 +400,50 @@ public void gcExpLog(int oplog) {
 	System.out.println("\tPOPL %EDX");
  	System.out.println("\tPOPL %EAX");
 
-  	System.out.println("\tCMPL $0, %EAX");
+  System.out.println("\tCMPL $0, %EAX");
  	System.out.println("\tMOVL $0, %EAX");
-   	System.out.println("\tSETNE %AL");
-   	System.out.println("\tCMPL $0, %EDX");
-   	System.out.println("\tMOVL $0, %EDX");
-   	System.out.println("\tSETNE %DL");
+  System.out.println("\tSETNE %AL");
+  System.out.println("\tCMPL $0, %EDX");
+  System.out.println("\tMOVL $0, %EDX");
+  System.out.println("\tSETNE %DL");
 
-   	switch (oplog) {
-    		case Parser.OR:  System.out.println("\tORL  %EDX, %EAX");  break;
-    		case Parser.AND: System.out.println("\tANDL  %EDX, %EAX"); break;
-    }
+  switch (oplog) {
+  		case Parser.OR:  System.out.println("\tORL  %EDX, %EAX");  break;
+  		case Parser.AND: System.out.println("\tANDL  %EDX, %EAX"); break;
+  }
 
-    System.out.println("\tPUSHL %EAX");
+  System.out.println("\tPUSHL %EAX");
 }
 
 public void gcExpNot(){
 
-  	System.out.println("\tPOPL %EAX" );
+  System.out.println("\tPOPL %EAX" );
  	System.out.println("\tNEGL %EAX" );
-  	System.out.println("\tPUSHL %EAX");
+  System.out.println("\tPUSHL %EAX");
+}
+
+public void gcWriteLit(String lit, boolean simpleLiteral) {
+	strTab.add(lit);
+  System.out.println("\tMOVL $_str_"+strCount+"Len, %EDX"); 
+	System.out.println("\tMOVL $_str_"+strCount+", %ECX"); 
+  System.out.println("\tCALL _writeLit"); 
+	if(simpleLiteral){
+		System.out.println("\tCALL _writeln"); 
+	}
+  strCount++;
+}
+
+public void gcWriteExp() {
+	System.out.println("\tPOPL %EAX"); 
+	System.out.println("\tCALL _write");	
+	System.out.println("\tCALL _writeln"); 
+}
+
+public void gcRead(String id) {
+	System.out.println("\tPUSHL $_"+id);
+	System.out.println("\tCALL _read");
+	System.out.println("\tPOPL %EDX");
+	System.out.println("\tMOVL %EAX, (%EDX)");
 }
 
 private void gcStart() {
@@ -416,23 +546,23 @@ private void gcDataArea(){
 	System.out.println("#");
 	System.out.println("# variaveis globais");
 	System.out.println("#");
-	ts.geraGlobais();	
+	ts.genGlobals();	
 	System.out.println("");
 	
 }
 
 private void gcLiteralsArea() { 
 
-    System.out.println("#\n# area de literais\n#");
-    System.out.println("__msg:");
+  System.out.println("#\n# area de literais\n#");
+  System.out.println("__msg:");
 	System.out.println("\t.zero 30");
 	System.out.println("__fim_msg:");
 	System.out.println("\t.byte 0");
 	System.out.println("\n");
 
-    for (int i = 0; i<strTab.size(); i++ ) {
-        System.out.println("_str_"+i+":");
-        System.out.println("\t .ascii \""+strTab.get(i)+"\""); 
-	    System.out.println("_str_"+i+"Len = . - _str_"+i);  
+  for (int i = 0; i<strTab.size(); i++ ) {
+    System.out.println("_str_"+i+":");
+    System.out.println("\t .ascii \""+strTab.get(i)+"\""); 
+	  System.out.println("_str_"+i+"Len = . - _str_"+i);  
 	}		
 }

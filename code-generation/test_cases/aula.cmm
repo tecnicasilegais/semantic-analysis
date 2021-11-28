@@ -1,9 +1,8 @@
-int a;
-int b;
-int c;
+int a, b, c;
 
 void main() {
-    a = 1;
+    a = 2;
+    b = c = a;
     if(a == 1){
         a = 2;
         if(a == 2)
@@ -14,5 +13,7 @@ void main() {
     else
         a = 3;
 
-    write("a = " , a);   
+    write("a = ", a);   
+    write("b = ", b);
+    write("c = ", c);
 }

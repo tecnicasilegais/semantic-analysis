@@ -1,27 +1,27 @@
-
 /**
- * Write a description of class Paciente here.
+ * Trabalho final da disciplina Construção de Compiladores 2021/2
  * 
- * @author (your name) 
- * @version (a version number or a date)
+ * Eduardo Andrade - eduardo.a@edu.pucrs.br - 17111012-5 
+ * Julia Alberti - julia.maia@edu.pucrs.br - 18106160-7 
+ * Marcelo Heredia - marcelo.heredia@edu.pucrs.br - 16204047-1
  */
 public class Symbol
 {
    private String id;
-   private int tipo;
+   private int type;
    private int nElem;
    private int tipoBase;
 
 
-   public Symbol(String umId, int umTipo, int ne, int umTBase) {
-      id = umId;
-      tipo = umTipo;
-      nElem = ne;
-      tipoBase = umTBase;
+   public Symbol(String id, int type, int nElem, int umTBase) {
+      this.id = id;
+      this.type = type;
+      this.nElem = nElem;
+      this.tipoBase = umTBase;
    }
 
-   public Symbol(String umId, int umTipo) {
-      this(umId, umTipo, -1, -1);
+   public Symbol(String id, int type) {
+      this(id, type, -1, -1);
    }
 
 
@@ -29,22 +29,22 @@ public class Symbol
        return id; 
    }
 
-   public int getTipo() {
-       return tipo; 
+   public int getType() {
+       return type; 
    }
    
-   public int getNumElem() {
+   public int countElem() {
        return nElem; 
    }
 
-   public int getTipoBase() {
+   public int getBaseType() {
        return tipoBase; 
    }
 
    
    public String toString() {
        String aux = (nElem != -1) ? "\t array(" + nElem + "): "+tipoBase : "";
-       return "Id: " + id + "\t tipo: " + tipo + aux;
+       return "Id: " + id + "\t type: " + type + aux;
    }
 
 

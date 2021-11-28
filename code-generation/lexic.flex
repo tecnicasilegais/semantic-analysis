@@ -1,3 +1,11 @@
+  /**
+   * Trabalho final da disciplina Construção de Compiladores 2021/2
+   * 
+   * Eduardo Andrade - eduardo.a@edu.pucrs.br - 17111012-5
+   * Julia Alberti - julia.maia@edu.pucrs.br - 18106160-7
+   * Marcelo Heredia - marcelo.heredia@edu.pucrs.br - 16204047-1
+   */
+
 %%
 
 %byaccj
@@ -52,7 +60,7 @@ NL  = \n | \r | \r\n
 "\[" | 
 "\]"    { return (int) yycharat(0); }
 
-{NUM}  { yyparser.yylval = new ParserVal(yytext()); 
+{NUM}  { yyparser.yylval = new ParserVal(Integer.parseInt(yytext())); 
          return Parser.NUM; }
 
 "+="   { return Parser.ASAD; }
@@ -66,18 +74,21 @@ NL  = \n | \r | \r\n
 "&&"   { return Parser.AND; }
 "||"   { return Parser.OR; }
 
-int    { return Parser.INT;}
-float  { return Parser.FLOAT; }
-bool   { return Parser.BOOL; }
-void   { return Parser.VOID; }
-main   { return Parser.MAIN; }
-write  { return Parser.WRITE; }
-read   { return Parser.READ; }
-while  { return Parser.WHILE; }
-if     { return Parser.IF; }
-else   { return Parser.ELSE; }
-true   { return Parser.TRUE; }
-false  { return Parser.FALSE; }
+int      { return Parser.INT;}
+float    { return Parser.FLOAT; }
+bool     { return Parser.BOOL; }
+void     { return Parser.VOID; }
+main     { return Parser.MAIN; }
+write    { return Parser.WRITE; }
+read     { return Parser.READ; }
+while    { return Parser.WHILE; }
+if       { return Parser.IF; }
+else     { return Parser.ELSE; }
+true     { return Parser.TRUE; }
+false    { return Parser.FALSE; }
+break    { return Parser.BREAK; }
+continue { return Parser.CONTINUE; }
+for      { return Parser.FOR; }
 
 
 

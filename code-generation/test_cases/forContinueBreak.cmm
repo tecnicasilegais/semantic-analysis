@@ -1,0 +1,26 @@
+int num;
+int result;
+int i;
+
+void main() { 
+  for (;;) {
+    write(" - - - - - - - - ");
+    write("Informe um numero: ");
+    read( num );
+
+		if( num < 10 ) {
+			write("Numero deve ser no minimo 10");
+			break;
+		}
+
+    		
+    for (i = 1; i <= num; i++) {
+
+			if( i % 2 != 0) continue;
+
+    	write("Numero par -> ", i);
+    				
+    }
+  }    
+} 
+

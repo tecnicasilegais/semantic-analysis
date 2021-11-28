@@ -35,3 +35,13 @@ funct ALUNO cadastraAluno(string nome) {
 
     return retornar;
 }
+
+funct string nomeAluno(ALUNO al) {
+    return al.nome;
+}
+
+funct void main() {
+    ALUNO al;
+    al = cadastraAluno("Nome");
+    string nome = nomeAluno(al);
+}

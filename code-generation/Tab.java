@@ -1,38 +1,49 @@
+/**
+ * Trabalho final da disciplina Construção de Compiladores 2021/2
+ * 
+ * Eduardo Andrade - eduardo.a@edu.pucrs.br - 17111012-5 
+ * Julia Alberti - julia.maia@edu.pucrs.br - 18106160-7 
+ * Marcelo Heredia - marcelo.heredia@edu.pucrs.br - 16204047-1
+ */
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
 public class Tab {
-  private ArrayList<Symbol> lista;
-
+  private ArrayList<Symbol> symbols;
+  public static final int ARRAY = 100;
   public Tab() {
-    lista = new ArrayList<Symbol>();
+    symbols = new ArrayList<Symbol>();
   }
 
-  public void insert(Symbol nodo) {
-    lista.add(nodo);
+  public void insert(Symbol node) {
+    symbols.add(node);
   }
 
-  public void listar() {
-    int cont = 0;
-    System.out.println("\n\n# Listagem da tabela de simbolos:\n");
-    for (Symbol nodo : lista) {
-      System.out.println("# " + nodo);
+  public void show() {
+    System.out.println("\n\n# Symbol Table:\n");
+    for (Symbol node : symbols) {
+      System.out.println("# " + node);
     }
   }
 
-  public Symbol pesquisa(String umId) {
-    for (Symbol nodo : lista) {
-      if (nodo.getId().equals(umId)) {
-        return nodo;
+  public Symbol find(String id) {
+    for (Symbol node : symbols) {
+      if (node.getId().equals(id)) {
+        return node;
       }
     }
     return null;
   }
 
-  public void geraGlobais() {
-    // assume que todas variáveis são globais e inteiras.
-    for (Symbol nodo : lista) {
-      System.out.println("_" + nodo.getId() + ":" + "	.zero 4");
+  public void genGlobals() {
+    // assume que todas variáveis são globais e inteiras / array de int.
+    for (Symbol node : symbols) {
+      if(node.getType() == ARRAY){
+        System.out.println("_" + node.getId() + ":" + " .zero " + (4 * node.countElem()));
+        continue;
+      }
+      System.out.println("_" + node.getId() + ":" + "	.zero 4");
     }
   }
 

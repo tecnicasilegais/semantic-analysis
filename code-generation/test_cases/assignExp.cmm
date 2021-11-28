@@ -6,11 +6,11 @@ int d;
 void main() {
     a = b = c = 1;
 
-    d = a++ + ++a;
+    a += a++ + ++a;
     
 
     write("a = " , a);   
     write("b = " , b);   
     write("c = " , c); 
-    write("d = " , d);    
+    write("d (nao inicializado ~so testando~) = " , d);    
 }
